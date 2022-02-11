@@ -56,6 +56,16 @@ io.on('connection', (socket) => {
       console.log('receive config on server');
       socket.to(testClientId).emit('config', data);
     });
+
+    socket.on('iceFromCaller', (data) => {
+      console.log('receive ice from caller on server');
+      socket.to(testClientId).emit('candidate', data);
+    });
+
+    socket.on('iceFromCallee', (data) => {
+      console.log('receive ice from calee on server');
+      socket.to(clientAppId).emit('candidate', data);
+    });
 });
 
 server.listen(port, () => {
