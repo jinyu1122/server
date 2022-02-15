@@ -45,7 +45,7 @@ io.on('connection', (socket) => {
 
     socket.on('pyping', () => {
       console.log('pyping');
-      socket.emit('pyping');
+      socket.emit('pypong', {name: 'haha'});
       testClientId = socket.id;
     });
 
