@@ -25,6 +25,7 @@ const port = 8080
 let clientAppId;
 let testClientId;
 
+
 io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('disconnect', () => {
@@ -39,6 +40,12 @@ io.on('connection', (socket) => {
     socket.on('testping', () => {
       console.log('testping');
       socket.emit('testpong');
+      testClientId = socket.id;
+    });
+
+    socket.on('pyping', () => {
+      console.log('pyping');
+      socket.emit('pyping');
       testClientId = socket.id;
     });
 
