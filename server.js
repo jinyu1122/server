@@ -25,6 +25,8 @@ const port = 8080
 let clientAppId;
 let testClientId;
 
+let newTabId;
+
 
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -37,10 +39,17 @@ io.on('connection', (socket) => {
       clientAppId = socket.id;
     });
 
-    socket.on('testping', () => {
-      console.log('testping');
-      socket.emit('testpong');
-      testClientId = socket.id;
+    // socket.on('testping', () => {
+    //   console.log('testping');
+    //   socket.emit('testpong');
+    //   testClientId = socket.id;
+    // });
+
+    socket.on('tabping', () => {
+      console.log('tabping');
+      newTabId = socket.id;
+      socket.emit('tabpong');
+      socket.to(clientAppId).emit('tabConnected');
     });
 
     socket.on('pyping', () => {
@@ -73,12 +82,26 @@ io.on('connection', (socket) => {
       console.log('receive ice from calee on server');
       socket.to(clientAppId).emit('candidate', data);
     });
+
+    socket.on('rtcConfig', (data) => {
+      socket.to(newTabId).emit('rtcConfig', data);
+    });
+
+    socket.on('rtcOffer', (data) => {
+      console.log('relay rtc offer');
+      socket.to(clientAppId).emit('rtcOffer', data);
+    })
+
+    socket.on('rtcAnswer', (data) => {
+      console.log('relay rtc answer');
+      socket.to(newTabId).emit('rtcAnswer', data);
+    });
 });
 
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
-// app.get('/', (req, res) => {
-//     res.sendFile(__dirname+'/client-app/build' + '/index.html');
-//   });
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '/index.html'));
+});
