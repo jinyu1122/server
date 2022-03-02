@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
         socket.emit('offer', offer);
         offer = null;
       }
-      while (callerICEs?.length > 0) {
+      while (callerICEs.length > 0) {
         const last = callerICEs.pop();
         socket.emit('candidate', last);
       }
