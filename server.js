@@ -24,12 +24,21 @@ const port = 8080
 
 let callerAppId;
 let calleeAppId;
+let config;
+let offer;
+let callerICEs = [];
 
 
 io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('disconnect', () => {
         console.log('user disconnected');
+        if (socket.id === callerAppId) {
+          callerAppId = null;
+        }
+        if (socket.id === calleeAppId) {
+          calleeAppId = null;
+        }
     });
     socket.on('callerping', () => {
       console.log('callerping');
@@ -41,11 +50,27 @@ io.on('connection', (socket) => {
       console.log('calleeping');
       socket.emit('calleepong');
       calleeAppId = socket.id;
+      if (config) {
+        socket.emit('config', config);
+        config = null;
+      }
+      if (offer) {
+        socket.emit('offer', offer);
+        offer = null;
+      }
+      while (callerICEs?.length > 0) {
+        const last = callerICEs.pop();
+        socket.emit('candidate', last);
+      }
     });
 
     socket.on('offer', (data) => {
       console.log('server offer:', data);
-      socket.to(calleeAppId).emit('offer', data);
+      if (calleeAppId) {
+        socket.to(calleeAppId).emit('offer', data);
+      } else {
+        offer = data;
+      }
     });
 
     socket.on('answer', (data) => {
@@ -55,12 +80,20 @@ io.on('connection', (socket) => {
 
     socket.on('config', (data) => {
       console.log('receive config on server');
-      socket.to(calleeAppId).emit('config', data);
+      if (calleeAppId) {
+        socket.to(calleeAppId).emit('config', data);
+      } else {
+        config = data;
+      }
     });
 
     socket.on('iceFromCaller', (data) => {
       console.log('receive ice from caller on server');
-      socket.to(calleeAppId).emit('candidate', data);
+      if (calleeAppId) {
+        socket.to(calleeAppId).emit('candidate', data);
+      } else {
+        callerICEs.push(data);
+      }
     });
 
     socket.on('iceFromCallee', (data) => {
