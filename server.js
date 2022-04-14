@@ -44,17 +44,17 @@ io.on('connection', (socket) => {
     });
 
     socket.on('offer', (data) => {
-      console.log('server offer:', data);
+      console.log('caller offer:', data);
       socket.to(calleeAppId).emit('offer', data);
     });
 
     socket.on('answer', (data) => {
-      console.log('receive answer on server');
+      console.log('receive answer from callee');
       socket.to(callerAppId).emit('answer', data);
     });
 
     socket.on('config', (data) => {
-      console.log('receive config on server');
+      console.log('receive config from caller');
       socket.to(calleeAppId).emit('config', data);
     });
 
@@ -64,7 +64,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('iceFromCallee', (data) => {
-      console.log('receive ice from calee on server');
+      console.log('receive ice from callee on server');
       socket.to(callerAppId).emit('candidate', data);
     });
 
